@@ -71,3 +71,25 @@ actor MockEngine: DecisionEngine {
     #expect(LabelVocabulary.label(for:26) == "AA")
     #expect(try LabelVocabulary.labels(count:255).count == 255)
 }
+
+
+@Test func deciderPromptUsesLetteredAnswerSlots() throws {
+    let rendered = try PromptBuilder.decider(
+        state: .init(task:"Fix the failing test"),
+        questions:[
+            .init(id:"route", type:.choice(criteria:["mechanical":nil,"standard":nil]), instructions:"Choose a tier"),
+            .init(id:"safe", type:.noul, instructions:"Is this safe?")
+        ]
+    )
+    #expect(rendered.text.contains("(A) mechanical"))
+    #expect(rendered.text.contains("Answer 1: ("))
+    #expect(rendered.text.contains("Answer 2: ("))
+    #expect(rendered.slots[1].optionNames == ["yes","no"])
+}
+
+@Test func interpreterAppliesCalibrationTemperature() throws {
+    let q = DecisionQuestion(id:"n", type:.noul, instructions:"yes?")
+    let cold = try DecisionInterpreter.answer(question:q, optionNames:["yes","no"], logits:[2,0], temperature:1)
+    let warm = try DecisionInterpreter.answer(question:q, optionNames:["yes","no"], logits:[2,0], temperature:2)
+    #expect((cold.noulProbability ?? 0) > (warm.noulProbability ?? 0))
+}
