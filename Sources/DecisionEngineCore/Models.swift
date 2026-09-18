@@ -43,9 +43,21 @@ public struct DecisionAnswer: Codable, Sendable, Equatable {
     }
 }
 
+import Foundation
+
 public struct ModelRegistration: Codable, Sendable, Equatable {
+    public enum Location: Codable, Sendable, Equatable {
+        case hub(String)
+        case directory(String)
+    }
+
     public let modelId: String
-    public init(modelId: String) { self.modelId = modelId }
+    public let location: Location?
+
+    public init(modelId: String, location: Location? = nil) {
+        self.modelId = modelId
+        self.location = location
+    }
 }
 
 public enum ModelTier: String, Codable, Sendable { case mechanical, standard, complex }
