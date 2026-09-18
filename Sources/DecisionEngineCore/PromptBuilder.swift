@@ -1,22 +1,42 @@
 import Foundation
 
+public struct RenderedDecisionPrompt: Sendable, Equatable {
+    public struct Slot: Sendable, Equatable {
+        public let questionId: String
+        public let optionNames: [String]
+        public let labels: [String]
+        public let marker: String
+    }
+    public let text: String
+    public let slots: [Slot]
+}
+
 public enum PromptBuilder {
-    public static func stateFirst(state: DecisionState, questions: [DecisionQuestion]) -> String {
-        var lines = ["State:", state.task]
-        if !state.context.isEmpty { lines += ["Context:", state.context] }
-        if let action = state.proposedAction { lines += ["Proposed action:", action] }
+    public static func decider(state: DecisionState, questions: [DecisionQuestion]) throws -> RenderedDecisionPrompt {
+        var context = state.task
+        if !state.context.isEmpty { context += "\n\n" + state.context }
+        if let action = state.proposedAction { context += "\n\nProposed action: " + action }
+        var lines = ["Context:", context]
+        var slots: [RenderedDecisionPrompt.Slot] = []
         for (index, question) in questions.enumerated() {
-            lines += ["", "Question \(index + 1) [\(question.id)]:", question.instructions]
+            let options: [String]
             switch question.type {
-            case .choice(let criteria):
-                lines.append("Options: " + criteria.keys.sorted().joined(separator: ", "))
-            case .score(let levels):
-                lines.append("Levels: " + levels.joined(separator: ", "))
-            case .noul:
-                lines.append("Options: yes, no")
+            case .choice(let criteria): options = criteria.keys.sorted()
+            case .score(let levels): options = levels
+            case .noul: options = ["yes", "no"]
             }
-            lines.append("Answer: <slot:\(question.id)>")
+            let labels = try LabelVocabulary.labels(count: options.count)
+            let number = index + 1
+            lines += ["", "Question \(number): \(question.instructions)", "Options:"]
+            for (label, option) in zip(labels, options) { lines.append("(\(label)) \(option)") }
+            let marker = "Answer \(number): ("
+            lines.append(marker)
+            slots.append(.init(questionId: question.id, optionNames: options, labels: labels, marker: marker))
         }
-        return lines.joined(separator: "\n")
+        return .init(text: lines.joined(separator: "\n"), slots: slots)
+    }
+
+    public static func stateFirst(state: DecisionState, questions: [DecisionQuestion]) -> String {
+        (try? decider(state: state, questions: questions).text) ?? ""
     }
 }
