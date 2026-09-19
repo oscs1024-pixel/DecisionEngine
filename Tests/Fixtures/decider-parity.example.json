@@ -1,0 +1,16 @@
+{
+  "description": "Schema for Python-vs-Swift decider parity fixtures",
+  "model": "Mapika/decider-2b",
+  "prompt": "",
+  "tokenIds": [],
+  "questions": [
+    {
+      "id": "example",
+      "answerSlotTokenIndex": 0,
+      "labels": ["A", "B"],
+      "labelTokenIds": [0, 0],
+      "referenceProbabilities": [0.5, 0.5]
+    }
+  ],
+  "tolerance": 0.0001
+}

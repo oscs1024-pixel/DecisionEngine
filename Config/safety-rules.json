@@ -1,0 +1,10 @@
+{
+  "failClosed": true,
+  "blockedCommandFragments": ["rm -rf /", "mkfs", "dd if=", "> /dev/sda"],
+  "protectedPaths": ["~/.ssh", "~/.aws", "~/Library/Keychains"],
+  "semantic": {
+    "destructiveBlockThreshold": 0.7,
+    "inScopeAllowThreshold": 0.85,
+    "destructiveAllowCeiling": 0.3
+  }
+}

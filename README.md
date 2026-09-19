@@ -33,3 +33,12 @@ swift test
 ```
 
 See `Config/` for example routing and safety policies.
+
+
+## MCP server
+
+The feature branch includes the official Model Context Protocol Swift SDK and registers `route_turn`, `approve_command`, and `score_quality` over stdio. Until a compatible local inference backend is configured, semantic calls return an explicit error; deterministic hard safety blocks remain available.
+
+## decider-2b integration
+
+See `Docs/MLXIntegration.md`. The reference checkpoint uses Qwen3.5-2B-Base and classifies from option-label logits at answer slots rather than generating JSON. The MLX adapter must preserve that mechanism and pass parity fixtures before semantic auto-approval is enabled.
