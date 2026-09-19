@@ -2,10 +2,11 @@ import Foundation
 
 public struct RenderedDecisionPrompt: Sendable, Equatable {
     public struct Slot: Sendable, Equatable {
-        public let questionId: String
+        public let question: DecisionQuestion
         public let optionNames: [String]
         public let labels: [String]
         public let marker: String
+        public var questionId: String { question.id }
     }
     public let text: String
     public let slots: [Slot]
@@ -31,11 +32,10 @@ public enum PromptBuilder {
             for (label, option) in zip(labels, options) { lines.append("(\(label)) \(option)") }
             let marker = "Answer \(number): ("
             lines.append(marker)
-            slots.append(.init(questionId: question.id, optionNames: options, labels: labels, marker: marker))
+            slots.append(.init(question: question, optionNames: options, labels: labels, marker: marker))
         }
         return .init(text: lines.joined(separator: "\n"), slots: slots)
     }
-
     public static func stateFirst(state: DecisionState, questions: [DecisionQuestion]) -> String {
         (try? decider(state: state, questions: questions).text) ?? ""
     }
