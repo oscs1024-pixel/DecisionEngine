@@ -93,3 +93,19 @@ actor MockEngine: DecisionEngine {
     let warm = try DecisionInterpreter.answer(question:q, optionNames:["yes","no"], logits:[2,0], temperature:2)
     #expect((cold.noulProbability ?? 0) > (warm.noulProbability ?? 0))
 }
+
+
+@Test func logitExtractorPreservesScoreSemantics() throws {
+    let rendered = try PromptBuilder.decider(
+        state: .init(task:"task"),
+        questions:[.init(id:"complexity", type:.score(levels:["low","mid","high"]), instructions:"score")]
+    )
+    let answer = try DeciderLogitExtractor.extract(
+        rendered: rendered,
+        slotPositions: [4],
+        labelTokenIds: [[10,11,12]],
+        logitsAt: { _, token in token == 12 ? 10 : 0 },
+        temperature: 1
+    )[0]
+    #expect((answer.scoreValue ?? 0) > 0.99)
+}
