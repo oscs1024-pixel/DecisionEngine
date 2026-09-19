@@ -3,7 +3,6 @@ import Foundation
 import MLX
 import MLXLLM
 import MLXLMCommon
-import MLXLMTokenizers
 
 public enum MLXDecisionEngineError: Error, Sendable {
     case modelNotLoaded
